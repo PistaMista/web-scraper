@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup, NavigableString
-from typing import Iterator
+from typing import Iterator, Optional
 from itertools import islice
 
 shop_url = "https://www.lcddisplej.cz/kategorie/displeje-dle-velikosti-notebooku/"
@@ -11,23 +11,17 @@ def get_soup(url: str) -> BeautifulSoup:
     res.raise_for_status()
     return BeautifulSoup(res.content, 'html.parser')
 
-def get_size_category_urls(categories_soup: BeautifulSoup) -> Iterator[str]:
+def get_category_urls(categories_url: str) -> Iterator[str]:
+    categories_soup = get_soup(categories_url)
     for li in categories_soup.find_all('li', class_="sub1"):
         for a in li.find_all('a'):
             url = a.get('href')
             if url is not None:
                 yield url
-    
-def get_product_urls(products_url: str) -> Iterator[str]:
-    products_soup = get_soup(products_url)
-    next_page = None
 
-    pagination = products_soup.find('div', class_="strankovani")
-    if pagination is not None and not isinstance(pagination, NavigableString):
-        page_buttons = pagination.find_all(recursive=False)
-        if page_buttons:
-            next_button = page_buttons[-1]
-            next_page = next_button.get('href', None)
+def get_product_urls(product_list_url: str) -> Iterator[str]:
+    products_soup = get_soup(product_list_url)
+    next_page = get_next_page_link(products_soup)
 
     for div in products_soup.find_all('div', class_="polozka_odkaz"):
         for a in div.find_all('a'):
@@ -38,12 +32,21 @@ def get_product_urls(products_url: str) -> Iterator[str]:
     if next_page is not None:
         yield from get_product_urls(next_page)
 
+def get_next_page_link(product_list_page: BeautifulSoup) -> Optional[str]:
+    pagination = product_list_page.find('div', class_="strankovani")
+    if pagination is not None and not isinstance(pagination, NavigableString):
+        page_buttons = pagination.find_all(recursive=False)
+        if page_buttons:
+            next_button = page_buttons[-1]
+            return next_button.get('href', None)
+
+    return None
+
 def main():
-    page_with_size_categories = get_soup(shop_url)
     product_urls = islice(
         (
             product_url
-            for category_url in get_size_category_urls(page_with_size_categories)
+            for category_url in get_category_urls(shop_url)
             for product_url in get_product_urls(category_url)
         ),
         max_product_count

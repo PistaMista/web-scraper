@@ -5,3 +5,6 @@ description = "UPA project web scraper"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []
+
+[project.scripts]
+web-scraper = "main:main"

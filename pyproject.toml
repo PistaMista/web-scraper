@@ -4,7 +4,10 @@ version = "0.1.0"
 description = "UPA project web scraper"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "beautifulsoup4>=4.13.5",
+]
 
 [project.scripts]
-web-scraper = "main:main"
+get-product-urls = "scraper.get_product_urls:main"
+scrape-product-pages = "scraper.scrape_product_pages:main"

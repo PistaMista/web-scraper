@@ -52,6 +52,11 @@ def print_product_params(product_url: str):
     page = get_soup(product_url)
     desc_dict = get_description_dict(page)
 
+    name = next(
+        h.string
+        for detail in page.find_all('div', id="detail_zbozi")
+        for h in detail.find_all('h1')
+    )
     price = next(
         extract_price_number(price_td.string)
         for price_tr in page.find_all('tr', class_="cena_s_dph")
@@ -66,7 +71,7 @@ def print_product_params(product_url: str):
     state = desc_dict.get("Stav", "")
     warranty = extract_warranty(desc_dict["Záruka"]) if "Záruka" in desc_dict else ""
 
-    print(f"{price}\t{dimension}\t{res_width}\t{res_height}\t{surface}\t{backlight}\t{state}\t{warranty}")
+    print(f"{product_url}\t{name}\t{price}\t{dimension}\t{res_width}\t{res_height}\t{surface}\t{backlight}\t{state}\t{warranty}")
 
 def main():
     for line in sys.stdin:

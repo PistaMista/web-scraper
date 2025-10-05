@@ -56,7 +56,7 @@ def print_product_params(product_url: str):
         h.string
         for detail in page.find_all('div', id="detail_zbozi")
         for h in detail.find_all('h1')
-    )
+    ) or ""
     price = next(
         extract_price_number(price_td.string)
         for price_tr in page.find_all('tr', class_="cena_s_dph")

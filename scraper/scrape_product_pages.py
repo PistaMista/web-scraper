@@ -14,7 +14,7 @@ def extract_price_number(price_str: str) -> str:
     return "".join(digits)
 
 def extract_dimension(dimension_str: str) -> str:
-    digits = re.findall(r'\d+', dimension_str)
+    digits = re.findall(r'[\d\.]+', dimension_str)
     return "".join(digits)
 
 def extract_resolution(resolution_str: str) -> Tuple[str, str]:
